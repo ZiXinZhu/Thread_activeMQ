@@ -4,7 +4,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 
 import javax.jms.*;
-import java.sql.Connection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,9 +12,9 @@ import java.sql.Connection;
  */
 public class PTPSend {
     //连接账号
-    private String userName = "zzx";
+    private String userName = "admin";
     //连接密码
-    private String password = "zzx";
+    private String password = "admin";
     //连接地址
     private String brokerURL = "tcp://123.207.231.159:61616";
     //connection的工厂
@@ -30,22 +29,21 @@ public class PTPSend {
     private MessageProducer producer;
 
 
-
-    public void start(){
+    public void start() {
         try {
             //根据用户名，密码，url创建一个连接工厂
             factory = new ActiveMQConnectionFactory(userName, password, brokerURL);
             //从工厂中获取一个连接
             connection = (Connection) factory.createConnection();
             //测试过这个步骤不写也是可以的，但是网上的各个文档都写了
-          //  connection.start();
+            connection.start();
             //创建一个session
             //第一个参数:是否支持事务，如果为true，则会忽略第二个参数，被jms服务器设置为SESSION_TRANSACTED
             //第二个参数为false时，paramB的值可为Session.AUTO_ACKNOWLEDGE，Session.CLIENT_ACKNOWLEDGE，DUPS_OK_ACKNOWLEDGE其中一个。
             //Session.AUTO_ACKNOWLEDGE为自动确认，客户端发送和接收消息不需要做额外的工作。哪怕是接收端发生异常，也会被当作正常发送成功。
             //Session.CLIENT_ACKNOWLEDGE为客户端确认。客户端接收到消息后，必须调用javax.jms.Message的acknowledge方法。jms服务器才会当作发送成功，并删除消息。
             //DUPS_OK_ACKNOWLEDGE允许副本的确认模式。一旦接收方应用程序的方法调用从处理消息处返回，会话对象就会确认消息的接收；而且允许重复确认。
-         //   session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             //创建一个到达的目的地，其实想一下就知道了，activemq不可能同时只能跑一个队列吧，这里就是连接了一个名为"text-msg"的队列，这个会话将会到这个队列，当然，如果这个队列不存在，将会被创建
             destination = session.createQueue("text-msg");
             //从session中，获取一个消息生产者
@@ -57,7 +55,7 @@ public class PTPSend {
 
             //创建一条消息，当然，消息的类型有很多，如文字，字节，对象等,可以通过session.create..方法来创建出来
             TextMessage textMsg = session.createTextMessage("This is a message about zzx!");
-            for(int i = 0 ; i < 100 ; i ++){
+            for (int i = 0; i < 100; i++) {
                 //发送一条消息
                 producer.send(textMsg);
             }

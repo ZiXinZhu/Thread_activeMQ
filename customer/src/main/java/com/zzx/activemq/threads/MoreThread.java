@@ -7,7 +7,6 @@ package com.zzx.activemq.threads;
  */
 public class MoreThread implements Runnable {
     String name;
-    Object lack;
 
     public MoreThread() {
     }
@@ -23,22 +22,24 @@ public class MoreThread implements Runnable {
     @Override
     public  void run() {
               synchronized(this) {
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 10000; i++) {
             System.out.println(Thread.currentThread().getName() + name);
         }
            }
+
     }
 
 
     public static void main(String[] args) {
         MoreThread moreThread=new MoreThread("锁");
-        Thread thread=new Thread(moreThread,"zzx");
+        Thread thread=new Thread(moreThread,"zzx--");
         thread.start();
-        Thread thread1=new Thread(moreThread,"珠海了");
+        Thread thread1=new Thread(moreThread,"珠海了------");
         thread1.start();
         new Thread(){
             public void run(){
                 System.out.println("哈哈哈");
+
             }
         }.start();
     }
