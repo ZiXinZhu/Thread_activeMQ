@@ -45,7 +45,9 @@ public class PTPSend {
             //DUPS_OK_ACKNOWLEDGE允许副本的确认模式。一旦接收方应用程序的方法调用从处理消息处返回，会话对象就会确认消息的接收；而且允许重复确认。
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             //创建一个到达的目的地，其实想一下就知道了，activemq不可能同时只能跑一个队列吧，这里就是连接了一个名为"text-msg"的队列，这个会话将会到这个队列，当然，如果这个队列不存在，将会被创建
-            destination = session.createQueue("text-msg");
+
+            ReceiveMessage receiveMessage=new ReceiveMessage();
+            destination = session.createQueue(receiveMessage.messageName);
             //从session中，获取一个消息生产者
             producer = session.createProducer(destination);
             //设置生产者的模式，有两种可选
@@ -53,13 +55,14 @@ public class PTPSend {
             //DeliveryMode.NON_PERSISTENT 当activemq关闭的时候，队列里面的数据将会被清空
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-            //创建一条消息，当然，消息的类型有很多，如文字，字节，对象等,可以通过session.create..方法来创建出来
-            TextMessage textMsg = session.createTextMessage("This is a message about zzx!");
-            for (int i = 0; i < 100; i++) {
-                //发送一条消息
-                producer.send(textMsg);
-            }
+            //创建一条消息，当然，消息的类型有很多，如文字，字节，对象等,可以通过session.create..方法来创建出来如下：
+            //接口：ObjectMessage  实现：ActiveMQObjectMessage
+            //接口：StreamMessage  实现：ActiveMQStreamMessage
+            //接口：MapMessage  实现：ActiveMQMapMessage
 
+            TextMessage textMsg = session.createTextMessage(receiveMessage.session);
+            //发消息了！！！
+            producer.send(textMsg);
             System.out.println("发送消息成功");
             //即便生产者的对象关闭了，程序还在运行哦
             producer.close();

@@ -11,8 +11,10 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class PTPReceive {
+
     //连接账号
     private String userName = "admin";
     //连接密码
@@ -47,26 +49,16 @@ public class PTPReceive {
             //DUPS_OK_ACKNOWLEDGE允许副本的确认模式。一旦接收方应用程序的方法调用从处理消息处返回，会话对象就会确认消息的接收；而且允许重复确认。
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             //创建一个到达的目的地，其实想一下就知道了，activemq不可能同时只能跑一个队列吧，这里就是连接了一个名为"text-msg"的队列，这个会话将会到这个队列，当然，如果这个队列不存在，将会被创建
-            destination = session.createQueue("zzx-lq");
+           ReceiveMessage receiveMessage=new ReceiveMessage();
+            destination = session.createQueue(receiveMessage.messageName);
             //根据session，创建一个接收者对象
             consumer = session.createConsumer(destination);
 
 
             //实现一个消息的监听器
             //实现这个监听器后，以后只要有消息，就会通过这个监听器接收到
-            consumer.setMessageListener(new MessageListener() {
-                @Override
-                public void onMessage(Message message) {
-                    try {
-                        //获取到接收的数据
-                        String text = ((TextMessage)message).getText();
-                        System.out.println(text);
-                        message.acknowledge();
-                    } catch (JMSException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            MyMessageListener listener=new MyMessageListener();
+            consumer.setMessageListener(listener);
             //关闭接收端，也不会终止程序哦
             consumer.close();
         } catch (JMSException e) {
