@@ -46,6 +46,8 @@ public class PTPSend {
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             //创建一个到达的目的地，其实想一下就知道了，activemq不可能同时只能跑一个队列吧，这里就是连接了一个名为"text-msg"的队列，这个会话将会到这个队列，当然，如果这个队列不存在，将会被创建
 
+
+            //①创建消息实例，并在session中插入一个ID
             ReceiveMessage receiveMessage=new ReceiveMessage();
             destination = session.createQueue(receiveMessage.messageName);
             //从session中，获取一个消息生产者
@@ -55,13 +57,13 @@ public class PTPSend {
             //DeliveryMode.NON_PERSISTENT 当activemq关闭的时候，队列里面的数据将会被清空
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
 
+            //②发送各个形式的消息
             //创建一条消息，当然，消息的类型有很多，如文字，字节，对象等,可以通过session.create..方法来创建出来如下：
             //接口：ObjectMessage  实现：ActiveMQObjectMessage
             //接口：StreamMessage  实现：ActiveMQStreamMessage
             //接口：MapMessage  实现：ActiveMQMapMessage
-
-            TextMessage textMsg = session.createTextMessage(receiveMessage.session);
-            //发消息了！！！
+            TextMessage textMsg = session.createTextMessage(receiveMessage.session);  //（这个session是ReceiveMessage的消息内容别被误导）
+            //③发消息了！！！
             producer.send(textMsg);
             System.out.println("发送消息成功");
             //即便生产者的对象关闭了，程序还在运行哦
